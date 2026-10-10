@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Out - Smart Electricity Saver</title>
+    <link rel="stylesheet" href="auth.css">
+    <script src="auth.js"></script>
+</head>
+<body>
+
+<div class="auth-wrapper">
+    <a href="index.html" class="auth-brand" title="Back to Dashboard">
+        <div class="auth-brand-icon">⚡</div>
+        <div class="auth-brand-text">
+            <h1>Smart Saver</h1>
+            <p>Electricity Manager</p>
+        </div>
+    </a>
+
+    <div class="auth-card logout-card">
+        <div class="logout-icon-wrap success" id="statusIcon">
+            ✓
+        </div>
+
+        <h2 id="logoutHeading">Signed Out</h2>
+        <p id="logoutMessage">You have been successfully signed out of your session.</p>
+
+        <div id="loggedOutBadge" class="logout-user-badge" style="display: none;">
+            <span>👤</span>
+            <span id="userNameEmail"></span>
+        </div>
+
+        <div class="logout-actions">
+            <a href="login.html" class="btn-auth-primary">Sign In Again</a>
+            <a href="index.html" class="btn-auth-secondary">Return to Dashboard</a>
+        </div>
+
+        <p id="countdownText" style="margin-top: 20px; font-size: 12px; color: var(--muted);">
+            Redirecting to sign in page in <strong id="timerNum">5</strong> seconds...
+        </p>
+    </div>
+
+    <div class="auth-footer">
+        Smart Electricity Saver &bull; Monitor better. Save smarter.
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        let loggedOutUser = null;
+
+        if (window.AuthManager) {
+            loggedOutUser = window.AuthManager.logout();
+        }
+
+        const badge = document.getElementById("loggedOutBadge");
+        const userSpan = document.getElementById("userNameEmail");
+
+        if (loggedOutUser && loggedOutUser.name) {
+            userSpan.textContent = `${loggedOutUser.name} (${loggedOutUser.email})`;
+            badge.style.display = "inline-flex";
+        }
+
+        // Countdown timer to redirect to login
+        let seconds = 5;
+        const timerNum = document.getElementById("timerNum");
+        const timer = setInterval(() => {
+            seconds--;
+            if (timerNum) timerNum.textContent = seconds;
+            if (seconds <= 0) {
+                clearInterval(timer);
+                window.location.href = "login.html";
+            }
+        }, 1000);
+    });
+</script>
+
+</body>
+</html>

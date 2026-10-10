@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Electricity Saver</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+    <script src="logout.js" defer></script>
+</head>
+<body>
+
+<div class="app">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">⚡</div>
+            <div>
+                <h2>Smart Saver</h2>
+                <p>Electricity Manager</p>
+            </div>
+        </div>
+
+    <p class="nav-heading">MENU</p>
+
+    <button class="nav-item active" data-section="dashboard">▦ &nbsp; Dashboard</button>
+    <button class="nav-item" data-section="bills">▤ &nbsp; Bill History</button>
+    <button class="nav-item" data-section="addBill">＋ &nbsp; Add Bill</button>
+    <button class="nav-item" data-section="comparison">⇄ &nbsp; Compare Months</button>
+    <button class="nav-item" data-section="calculator">▣ &nbsp; Appliance Calculator</button>
+    <button class="nav-item" data-section="recommendations">✦ &nbsp; Saving Tips</button>
+
+    <div class="sidebar-bottom">
+        <div class="eco-icon">♻</div>
+        <h3>Save Energy,<br>Save Money</h3>
+        <p>Small changes can make a big difference.</p>
+    </div>
+</aside>
+
+<main class="main-content">
+    <header class="topbar">
+        <div>
+            <p class="eyebrow">ENERGY MANAGEMENT</p>
+            <h1 id="pageTitle">Dashboard</h1>
+        </div>
+    </header>
+
+    <div id="notification" class="notification hidden" role="status"></div>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="page-section">
+        <div class="welcome-card">
+            <div>
+                <p class="welcome-label">YOUR ENERGY OVERVIEW</p>
+                <h2>Make every unit count.</h2>
+                <p>Track your electricity usage and find opportunities to save.</p>
+            </div>
+            <div class="welcome-bolt">⚡</div>
+        </div>
+
+        <div class="stats-grid">
+            <article class="stat-card">
+                <div class="stat-top">
+                    <span>Total Bills</span>
+                    <span class="stat-icon green">▤</span>
+                </div>
+                <h2 id="totalBills">—</h2>
+                <p>Saved bill records</p>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-top">
+                    <span>Latest Consumption</span>
+                    <span class="stat-icon yellow">⚡</span>
+                </div>
+                <h2 id="latestUnits">—</h2>
+                <p>Units (kWh)</p>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-top">
+                    <span>Latest Bill Amount</span>
+                    <span class="stat-icon blue">₹</span>
+                </div>
+                <h2 id="latestAmount">—</h2>
+                <p id="latestPeriod">Latest saved bill</p>
+            </article>
+        </div>
+
+        <div class="content-grid">
+            <article class="panel">
+                <div class="panel-heading">
+                    <div>
+                        <h3>Recent Bills</h3>
+                        <p>Your latest saved electricity records</p>
+                    </div>
+                    <button class="text-button" data-go="bills">View all →</button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Units</th>
+                                <th>Bill Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentBillsBody">
+                            <tr><td colspan="3" class="empty">Loading bills...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+
+            <article class="panel recommendation-preview">
+                <div class="panel-heading">
+                    <div>
+                        <h3>Energy Insight</h3>
+                        <p>Recommendations from your records</p>
+                    </div>
+                    <span class="stat-icon green">✦</span>
+                </div>
+                <div id="dashboardRecommendation" class="recommendation-text">
+                    Loading recommendations...
+                </div>
+                <button class="primary-button full-button" data-go="recommendations">
+                    View Saving Tips →
+                </button>
+            </article>
+        </div>
+    </section>
+
+    <!-- BILL HISTORY -->
+    <section id="bills" class="page-section hidden">
+        <div class="section-intro">
+            <div>
+                <h2>Your Electricity Records</h2>
+                <p>View and manage bills retrieved from your database.</p>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button type="button" class="secondary-button" id="exportCsvButton">⬇ Export to CSV</button>
+                <button type="button" class="primary-button" data-go="addBill">＋ Add New Bill</button>
+            </div>
+        </div>
+
+        <article class="panel">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Year</th>
+                            <th>Units (kWh)</th>
+                            <th>Bill Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allBillsBody">
+                        <tr><td colspan="5" class="empty">Loading bills...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </article>
+    </section>
+
+    <!-- ADD BILL -->
+    <section id="addBill" class="page-section hidden">
+        <div class="section-intro">
+            <div>
+                <h2 id="billFormHeading">Add Monthly Bill</h2>
+                <p id="billFormSubheading">Save your electricity consumption details.</p>
+            </div>
+        </div>
+
+        <article class="panel form-panel">
+            <form id="billForm">
+                <input type="hidden" id="editingBillId" value="">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="billMonth">Month</label>
+                        <select id="billMonth" required>
+                            <option value="">Select month</option>
+                            <option>January</option>
+                            <option>February</option>
+                            <option>March</option>
+                            <option>April</option>
+                            <option>May</option>
+                            <option>June</option>
+                            <option>July</option>
+                            <option>August</option>
+                            <option>September</option>
+                            <option>October</option>
+                            <option>November</option>
+                            <option>December</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="billYear">Year</label>
+                        <input id="billYear" type="number" min="2000" max="2100"
+                               placeholder="2026" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="billUnits">Units Consumed (kWh)</label>
+                        <input id="billUnits" type="number" min="0" step="any"
+                               placeholder="180" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="billAmount">Bill Amount (₹)</label>
+                        <input id="billAmount" type="number" min="0" step="any"
+                               placeholder="1250" required>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; align-items: center; margin-top: 8px;">
+                    <button type="submit" class="primary-button" id="saveBillButton">
+                        Save Electricity Bill
+                    </button>
+                    <button type="button" class="secondary-button hidden" id="cancelEditButton">
+                        Cancel Edit
+                    </button>
+                </div>
+            </form>
+        </article>
+    </section>
+
+    <!-- MONTHLY COMPARISON -->
+    <section id="comparison" class="page-section hidden">
+        <div class="section-intro">
+            <div>
+                <h2>Monthly Comparison</h2>
+                <p>Compare two saved months to understand changes in consumption.</p>
+            </div>
+        </div>
+
+        <article class="panel form-panel">
+            <form id="compareForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="month1">First Month</label>
+                        <select id="month1" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="year1">First Year</label>
+                        <input id="year1" type="number" min="2000" max="2100" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="month2">Second Month</label>
+                        <select id="month2" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="year2">Second Year</label>
+                        <input id="year2" type="number" min="2000" max="2100" required>
+                    </div>
+                </div>
+                <button class="primary-button" type="submit">Compare Consumption</button>
+            </form>
+        </article>
+
+        <article id="comparisonResult" class="panel result-panel hidden">
+            <h3>Comparison Result</h3>
+            <div id="comparisonContent"></div>
+        </article>
+    </section>
+
+    <!-- APPLIANCE CALCULATOR -->
+    <section id="calculator" class="page-section hidden">
+        <div class="section-intro">
+            <div>
+                <h2>Appliance Calculator</h2>
+                <p>Estimate electricity consumption and monthly cost.</p>
+            </div>
+        </div>
+
+        <article class="panel form-panel">
+            <form id="calculatorForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="applianceName">Appliance</label>
+                        <select id="applianceName" required>
+                            <option value="">Select appliance</option>
+                            <option>Ceiling fan</option>
+                            <option>LED bulb</option>
+                            <option>Television</option>
+                            <option>Refrigerator</option>
+                            <option>Air conditioner</option>
+                            <option>Washing machine</option>
+                            <option>Custom</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="powerGroup">
+                        <label for="powerRating">Power Rating (Watts)</label>
+                        <input id="powerRating" type="number" min="0.01" step="any"
+                               placeholder="Enter watts">
+                        <small>Required only for a custom appliance, unless your backend requires otherwise.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dailyHours">Daily Usage (Hours)</label>
+                        <input id="dailyHours" type="number" min="0" max="24" step="any"
+                               placeholder="8" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="electricityRate">Rate per Unit (₹)</label>
+                        <input id="electricityRate" type="number" min="0" step="any"
+                               value="7.5" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="primary-button">Calculate Consumption</button>
+            </form>
+        </article>
+
+        <article id="calculatorResult" class="panel result-panel hidden">
+            <h3>Estimated Consumption</h3>
+            <div id="calculatorContent" class="result-grid"></div>
+            <p class="result-note">This is an estimate based on the power rating and usage hours you entered.</p>
+        </article>
+    </section>
+
+    <!-- RECOMMENDATIONS -->
+    <section id="recommendations" class="page-section hidden">
+        <div class="section-intro">
+            <div>
+                <h2>Electricity-Saving Tips</h2>
+                <p>Review suggestions generated by your backend using saved bill records.</p>
+            </div>
+            <button id="refreshRecommendations" class="secondary-button">↻ Refresh</button>
+        </div>
+
+        <article class="panel tips-panel">
+            <div class="tips-icon">✦</div>
+            <h3>Your Recommendation</h3>
+            <div id="fullRecommendation" class="recommendation-text">
+                Loading recommendations...
+            </div>
+        </article>
+
+        <article class="panel">
+            <h3>Everyday Energy-Saving Habits</h3>
+            <div class="habit-list">
+                <div class="habit"><span>01</span><div><strong>Switch off unused appliances</strong><p>Turn off lights and fans when you leave a room.</p></div></div>
+                <div class="habit"><span>02</span><div><strong>Use energy-efficient lighting</strong><p>Consider LED bulbs where suitable.</p></div></div>
+                <div class="habit"><span>03</span><div><strong>Monitor appliance usage</strong><p>Check which appliances run for long periods.</p></div></div>
+            </div>
+        </article>
+    </section>
+
+    <footer>
+        Smart Electricity Saver <span>•</span> Monitor better. Save smarter.
+    </footer>
+</main>
+
+</div>
+
+</body>
+</html>
