@@ -1,4 +1,5 @@
-const API_BASE = "http://localhost:5050/api/bills";
+const BACKEND_HOST = window.API_BASE || localStorage.getItem('SES_API_BASE') || "http://localhost:5050";
+const API_BASE = `${BACKEND_HOST}/api/bills`;
 
 const $ = (id) => document.getElementById(id);
 
@@ -223,6 +224,33 @@ try {
 
     return bills;
 } catch (error) {
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (!isLocalhost) {
+        let localBills = [];
+        try {
+            localBills = JSON.parse(localStorage.getItem('ses_cloud_bills') || '[]');
+        } catch (_) {}
+        if (!localBills || !localBills.length) {
+            localBills = [
+                { id: 1, month: "October", year: 2028, unitsConsumed: 180, billAmount: 1200 },
+                { id: 2, month: "September", year: 2028, unitsConsumed: 150, billAmount: 900 },
+                { id: 3, month: "February", year: 2028, unitsConsumed: 420, billAmount: 2900 },
+                { id: 4, month: "January", year: 2028, unitsConsumed: 0, billAmount: 20 }
+            ];
+            localStorage.setItem('ses_cloud_bills', JSON.stringify(localBills));
+        }
+        bills = localBills;
+        $("totalBills").textContent = bills.length;
+        const sorted = sortBillsNewestFirst(bills);
+        const latest = sorted[0];
+        $("latestUnits").textContent = latest ? formatNumber(latest.unitsConsumed) : "—";
+        $("latestAmount").textContent = latest ? formatRupees(latest.billAmount) : "—";
+        $("latestPeriod").textContent = latest ? `${latest.month} ${latest.year}` : "No bill recorded yet";
+        renderRecentBills(bills);
+        renderAllBills(bills);
+        return bills;
+    }
+
     $("recentBillsBody").innerHTML =
         `<tr><td colspan="3" class="empty">${escapeHTML(error.message)}</td></tr>`;
 

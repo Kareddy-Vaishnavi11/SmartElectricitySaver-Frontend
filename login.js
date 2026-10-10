@@ -1,6 +1,6 @@
 'use strict';
 
-const API_BASE = 'http://localhost:5050';
+const API_BASE = window.API_BASE || localStorage.getItem('SES_API_BASE') || 'http://localhost:5050';
 
 function showAlert(message, isError = false) {
     const alertEl = document.getElementById('authAlert');
