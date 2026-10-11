@@ -274,22 +274,9 @@ function offlineDispatch(url, options = {}) {
     throw new Error('Unknown API route: ' + url);
 }
 
-// ─── Offline mode banner ────────────────────────────────────────────────────
+// ─── Offline mode (silent — no banner shown to users) ───────────────────────
 function showOfflineBanner() {
-    if (document.getElementById('ses-offline-banner')) return;
-    const banner = document.createElement('div');
-    banner.id = 'ses-offline-banner';
-    banner.style.cssText = [
-        'position:fixed;top:0;left:0;right:0;z-index:9999',
-        'background:#f59e0b;color:#fff;text-align:center',
-        'font-size:13px;font-weight:600;padding:8px 16px',
-        'font-family:inherit;letter-spacing:0.01em'
-    ].join(';');
-    banner.textContent = '⚡ Running in offline demo mode — all data is saved in your browser.';
-    document.body.prepend(banner);
-    // push main content down a bit so it is not hidden behind banner
-    const app = document.querySelector('.app, main');
-    if (app) app.style.paddingTop = (parseInt(app.style.paddingTop || '0') + 38) + 'px';
+    // Intentionally silent — app works seamlessly in offline mode.
 }
 
 // ─── UI helpers ─────────────────────────────────────────────────────────────
