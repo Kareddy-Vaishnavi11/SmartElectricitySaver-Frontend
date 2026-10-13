@@ -4,6 +4,8 @@
   "description": "",
   "main": "login.js",
   "scripts": {
+    "dev": "npm --prefix react-demo run dev",
+    "build": "npm --prefix react-demo run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

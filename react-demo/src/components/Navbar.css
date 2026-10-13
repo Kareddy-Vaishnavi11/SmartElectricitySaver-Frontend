@@ -1,0 +1,111 @@
+/* Sidebar Navbar — mirrors the existing style.css design */
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 245px;
+  padding: 28px 17px;
+  background: #ffffff;
+  border-right: 1px solid #e5ebe6;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  gap: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 8px 34px;
+}
+
+.brand-icon {
+  width: 43px;
+  height: 43px;
+  display: grid;
+  place-items: center;
+  background: #16845b;
+  color: white;
+  border-radius: 13px;
+  font-size: 24px;
+}
+
+.brand h2 {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin: 0;
+}
+
+.brand p {
+  margin-top: 3px;
+  font-size: 11px;
+  color: #78857d;
+}
+
+.nav-heading {
+  color: #78857d;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  padding: 0 12px 12px;
+}
+
+.nav-item {
+  display: block;
+  width: 100%;
+  padding: 13px 12px;
+  margin-bottom: 5px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: #65736a;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+.nav-item:hover {
+  background: #f5f7f5;
+  color: #16845b;
+}
+
+.nav-item.active {
+  background: #e8f5ee;
+  color: #16845b;
+  font-weight: 600;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px 8px 0;
+  border-top: 1px solid #e5ebe6;
+}
+
+.user-email {
+  font-size: 12px;
+  color: #78857d;
+  margin-bottom: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #e5ebe6;
+  border-radius: 8px;
+  background: transparent;
+  color: #65736a;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.logout-btn:hover {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
