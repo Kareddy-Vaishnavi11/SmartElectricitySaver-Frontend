@@ -4,6 +4,26 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import api from '../api';
 
+const DEMO_ACCOUNTS = [
+  { email: 'admin@smartsaver.com', password: 'admin123', name: 'Admin', role: 'ADMIN' },
+  { email: 'admin@smartsaver.com', password: 'admin', name: 'Admin', role: 'ADMIN' },
+];
+
+const LS_USERS_KEY = 'ses_registered_users';
+
+function getRegisteredUsers() {
+  try {
+    const raw = localStorage.getItem(LS_USERS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveRegisteredUsers(users) {
+  localStorage.setItem(LS_USERS_KEY, JSON.stringify(users));
+}
+
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -42,14 +62,55 @@ export default function LoginPage() {
       return;
     }
     setLoginLoading(true);
+
+    const emailTrimmed = loginForm.email.trim().toLowerCase();
+    const isDemo = DEMO_ACCOUNTS.some(
+      (a) => a.email.toLowerCase() === emailTrimmed && a.password === loginForm.password
+    );
+
     try {
-      const res = await api.post('/api/auth/login', loginForm);
+      const res = await api.post('/api/auth/login', {
+        email: emailTrimmed,
+        password: loginForm.password,
+      });
       const data = res.data;
-      const userData = { email: data.email || loginForm.email, role: data.role || 'USER' };
+      const userData = {
+        email: data.email || emailTrimmed,
+        name: (data.email || emailTrimmed).split('@')[0],
+        role: data.role || 'USER',
+      };
       login(userData, data.token || null);
       navigate('/');
     } catch (err) {
-      const msg = err.response?.data?.error || err.response?.data?.message || 'Invalid email or password.';
+      // If demo account, sign in immediately on backend error / offline
+      if (isDemo) {
+        login({ email: 'admin@smartsaver.com', name: 'Admin', role: 'ADMIN' }, null);
+        navigate('/');
+        return;
+      }
+
+      // Check offline registered accounts
+      const localUsers = getRegisteredUsers();
+      const localFound = localUsers.find(
+        (u) => u.email.toLowerCase() === emailTrimmed && u.password === loginForm.password
+      );
+      if (localFound) {
+        login(
+          {
+            email: localFound.email,
+            name: localFound.name || localFound.email.split('@')[0],
+            role: 'USER',
+          },
+          null
+        );
+        navigate('/');
+        return;
+      }
+
+      const msg =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        'Invalid email or password. Use demo account (admin@smartsaver.com / admin123) or click Continue as Guest.';
       showAlert(msg, 'error');
     } finally {
       setLoginLoading(false);
@@ -66,18 +127,40 @@ export default function LoginPage() {
     }
     setRegErrors({});
     setRegLoading(true);
+
+    const emailTrimmed = regForm.email.trim().toLowerCase();
+
     try {
       const res = await api.post('/api/auth/register', {
-        email: regForm.email,
+        email: emailTrimmed,
         password: regForm.password,
       });
       const data = res.data;
-      const userData = { email: data.email || regForm.email, role: 'USER' };
+      const userData = { email: data.email || emailTrimmed, name: regForm.name.trim(), role: 'USER' };
       login(userData, data.token || null);
       navigate('/');
     } catch (err) {
-      const msg = err.response?.data?.error || err.response?.data?.message || 'Registration failed.';
-      showAlert(msg, 'error');
+      // Fallback: save to local storage if backend is offline/unreachable
+      try {
+        const users = getRegisteredUsers();
+        if (users.some((u) => u.email.toLowerCase() === emailTrimmed)) {
+          showAlert('An account with this email already exists. Please sign in.', 'error');
+          setRegLoading(false);
+          return;
+        }
+        users.push({
+          name: regForm.name.trim(),
+          email: emailTrimmed,
+          password: regForm.password,
+        });
+        saveRegisteredUsers(users);
+        const userData = { email: emailTrimmed, name: regForm.name.trim(), role: 'USER' };
+        login(userData, null);
+        navigate('/');
+      } catch {
+        const msg = err.response?.data?.error || err.response?.data?.message || 'Registration failed.';
+        showAlert(msg, 'error');
+      }
     } finally {
       setRegLoading(false);
     }
@@ -86,6 +169,11 @@ export default function LoginPage() {
   function quickFill() {
     setLoginForm({ email: 'admin@smartsaver.com', password: 'admin123' });
     showAlert('Demo credentials filled. Click Sign In.');
+  }
+
+  function handleGuestLogin() {
+    login({ email: 'guest@smartsaver.com', name: 'Guest User', role: 'GUEST' }, null);
+    navigate('/');
   }
 
   return (
@@ -224,6 +312,24 @@ export default function LoginPage() {
             </form>
           </>
         )}
+        <div style={{ marginTop: 20, textAlign: 'center' }}>
+          <button
+            type="button"
+            onClick={handleGuestLogin}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#10b981',
+              cursor: 'pointer',
+              fontSize: 13,
+              fontWeight: 600,
+              textDecoration: 'underline',
+              padding: '6px 12px'
+            }}
+          >
+            Continue to Dashboard as Guest →
+          </button>
+        </div>
       </div>
 
       <p style={{ marginTop: 20, fontSize: 13, color: '#78857d' }}>
